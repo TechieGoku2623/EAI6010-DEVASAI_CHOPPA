@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 import joblib
 
 # Load the dataset
@@ -18,13 +18,14 @@ y = (data['target'] > 0).astype(int)  # Binary classification: 1 for heart disea
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+# Initialize and fit the scaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+
 # Train the model
 model = LogisticRegression()
-model.fit(X_train, y_train)
+model.fit(X_train_scaled, y_train)
 
-# Evaluate the model
-accuracy = accuracy_score(y_test, model.predict(X_test))
-print(f"Model Accuracy: {accuracy:.2f}")
-
-# Save the model
+# Save the model and the scaler
 joblib.dump(model, 'heart_disease_model.pkl')
+joblib.dump(scaler, 'scaler.pkl')
