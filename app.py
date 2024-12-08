@@ -1,57 +1,58 @@
-from flask import Flask, render_template, request, jsonify
-from sklearn.preprocessing import StandardScaler
-import numpy as np
 import joblib
+import numpy as np
+from flask import Flask, request, jsonify
 
-# Load your model (make sure it's available)
-model = joblib.load('heart_disease_model.pkl')  # Replace with your model file path
-
+# Initialize Flask app
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    # Sample values (these will be pre-filled in the form)
-    sample_data = {
-        "age": 50,
-        "sex": 1,
-        "cp": 2,
-        "trestbps": 130,
-        "chol": 250,
-        "fbs": 0,
-        "restecg": 1,
-        "thalach": 150,
-        "exang": 0
-    }
+# Load the trained model and the scaler
+model = joblib.load('heart_disease_model.pkl')
+scaler = joblib.load('scaler.pkl')  # Load the saved scaler
 
-    if request.method == 'POST':
-        # Get form data from user input or use sample data
-        age = int(request.form['age'])
-        sex = int(request.form['sex'])
-        cp = int(request.form['cp'])
-        trestbps = int(request.form['trestbps'])
-        chol = int(request.form['chol'])
-        fbs = int(request.form['fbs'])
-        restecg = int(request.form['restecg'])
-        thalach = int(request.form['thalach'])
-        exang = int(request.form['exang'])
+# Define the prediction route
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Parse input JSON
+        data = request.get_json()
 
-        # Create an array of features
-        features = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang]])
+        # Check if all required fields are present
+        required_fields = [
+            'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 
+            'restecg', 'thalach', 'exang'
+        ]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing input data for one or more fields"}), 400
         
-        # Standardize features (if needed)
-        scaler = StandardScaler()
-        features_scaled = scaler.fit_transform(features)
-        
-        # Make prediction
-        prediction = model.predict(features_scaled)
+        # Extract features from input data
+        features = np.array([
+            data['age'],
+            data['sex'],
+            data['cp'],
+            data['trestbps'],
+            data['chol'],
+            data['fbs'],
+            data['restecg'],
+            data['thalach'],
+            data['exang']
+        ]).reshape(1, -1)
+
+        # Normalize features using the scaler
+        features_scaled = scaler.transform(features)
+
+        # Perform prediction
+        prediction = model.predict(features_scaled)[0]
         probability = model.predict_proba(features_scaled)[0][1]
-        
-        # Send results to the HTML page
-        return render_template('index.html', prediction=prediction[0], probability=probability,
-                               form_data=request.form, sample_data=sample_data)
-    
-    # On initial load, pass sample data
-    return render_template('index.html', prediction=None, probability=None, sample_data=sample_data)
 
+        # Return response
+        return jsonify({
+            "heart_disease_prediction": int(prediction),
+            "probability": round(probability, 2)
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+# Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
