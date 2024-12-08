@@ -10,8 +10,21 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # Sample values (these will be pre-filled in the form)
+    sample_data = {
+        "age": 50,
+        "sex": 1,
+        "cp": 2,
+        "trestbps": 130,
+        "chol": 250,
+        "fbs": 0,
+        "restecg": 1,
+        "thalach": 150,
+        "exang": 0
+    }
+
     if request.method == 'POST':
-        # Get form data
+        # Get form data from user input or use sample data
         age = int(request.form['age'])
         sex = int(request.form['sex'])
         cp = int(request.form['cp'])
@@ -21,7 +34,7 @@ def index():
         restecg = int(request.form['restecg'])
         thalach = int(request.form['thalach'])
         exang = int(request.form['exang'])
-        
+
         # Create an array of features
         features = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang]])
         
@@ -34,9 +47,11 @@ def index():
         probability = model.predict_proba(features_scaled)[0][1]
         
         # Send results to the HTML page
-        return render_template('index.html', prediction=prediction[0], probability=probability)
+        return render_template('index.html', prediction=prediction[0], probability=probability,
+                               form_data=request.form, sample_data=sample_data)
     
-    return render_template('index.html', prediction=None, probability=None)
+    # On initial load, pass sample data
+    return render_template('index.html', prediction=None, probability=None, sample_data=sample_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
