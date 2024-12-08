@@ -10,37 +10,37 @@
     
     <form method="POST">
         <label for="age">Age:</label>
-        <input type="number" id="age" name="age" required><br><br>
+        <input type="number" name="age" value="{{ sample_data['age'] }}" required><br><br>
 
-        <label for="sex">Sex (1 for Male, 0 for Female):</label>
-        <input type="number" id="sex" name="sex" required><br><br>
+        <label for="sex">Sex (1 for male, 0 for female):</label>
+        <input type="number" name="sex" value="{{ sample_data['sex'] }}" required><br><br>
 
-        <label for="cp">Chest Pain Type:</label>
-        <input type="number" id="cp" name="cp" required><br><br>
+        <label for="cp">Chest Pain Type (0-3):</label>
+        <input type="number" name="cp" value="{{ sample_data['cp'] }}" required><br><br>
 
-        <label for="trestbps">Resting Blood Pressure:</label>
-        <input type="number" id="trestbps" name="trestbps" required><br><br>
+        <label for="trestbps">Resting Blood Pressure (mm Hg):</label>
+        <input type="number" name="trestbps" value="{{ sample_data['trestbps'] }}" required><br><br>
 
-        <label for="chol">Cholesterol Level:</label>
-        <input type="number" id="chol" name="chol" required><br><br>
+        <label for="chol">Serum Cholesterol (mg/dl):</label>
+        <input type="number" name="chol" value="{{ sample_data['chol'] }}" required><br><br>
 
-        <label for="fbs">Fasting Blood Sugar (1 for > 120 mg/dl, 0 for others):</label>
-        <input type="number" id="fbs" name="fbs" required><br><br>
+        <label for="fbs">Fasting Blood Sugar (1 if greater than 120 mg/dl, 0 otherwise):</label>
+        <input type="number" name="fbs" value="{{ sample_data['fbs'] }}" required><br><br>
 
-        <label for="restecg">Resting Electrocardiographic Results:</label>
-        <input type="number" id="restecg" name="restecg" required><br><br>
+        <label for="restecg">Resting Electrocardiographic Results (0-2):</label>
+        <input type="number" name="restecg" value="{{ sample_data['restecg'] }}" required><br><br>
 
         <label for="thalach">Maximum Heart Rate Achieved:</label>
-        <input type="number" id="thalach" name="thalach" required><br><br>
+        <input type="number" name="thalach" value="{{ sample_data['thalach'] }}" required><br><br>
 
-        <label for="exang">Exercise Induced Angina (1 for Yes, 0 for No):</label>
-        <input type="number" id="exang" name="exang" required><br><br>
+        <label for="exang">Exercise Induced Angina (1 for yes, 0 for no):</label>
+        <input type="number" name="exang" value="{{ sample_data['exang'] }}" required><br><br>
 
-        <button type="submit">Predict</button>
+        <input type="submit" value="Predict">
     </form>
 
     {% if prediction is not none %}
-        <h2>Prediction Result: {{ prediction }}</h2>
+        <h2>Prediction: {{ 'Disease Detected' if prediction == 1 else 'No Disease Detected' }}</h2>
         <h3>Probability: {{ probability }}</h3>
     {% endif %}
 </body>
